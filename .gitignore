@@ -28,3 +28,5 @@ dist
 
 # Editor swap/temp files
 .*.swp
+
+.vscode

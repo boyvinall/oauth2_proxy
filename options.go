@@ -221,19 +221,24 @@ func parseProviderInfo(o *Options, msgs []string) []string {
 	p.ValidateURL, msgs = parseURL(o.ValidateURL, "validate", msgs)
 	p.ProtectedResource, msgs = parseURL(o.ProtectedResource, "resource", msgs)
 
-	o.provider = providers.New(o.Provider, p)
-	switch p := o.provider.(type) {
-	case *providers.AzureProvider:
-		p.Configure(o.AzureTenant)
-	case *providers.GitHubProvider:
-		p.SetOrgTeam(o.GitHubOrg, o.GitHubTeam)
-	case *providers.GoogleProvider:
-		if o.GoogleServiceAccountJSON != "" {
-			file, err := os.Open(o.GoogleServiceAccountJSON)
-			if err != nil {
-				msgs = append(msgs, "invalid Google credentials file: "+o.GoogleServiceAccountJSON)
-			} else {
-				p.SetGroupRestriction(o.GoogleGroups, o.GoogleAdminEmail, file)
+	var err error
+	o.provider, err = providers.New(o.Provider, p)
+	if err != nil {
+		msgs = append(msgs, err.Error())
+	} else {
+		switch p := o.provider.(type) {
+		case *providers.AzureProvider:
+			p.Configure(o.AzureTenant)
+		case *providers.GitHubProvider:
+			p.SetOrgTeam(o.GitHubOrg, o.GitHubTeam)
+		case *providers.GoogleProvider:
+			if o.GoogleServiceAccountJSON != "" {
+				file, err := os.Open(o.GoogleServiceAccountJSON)
+				if err != nil {
+					msgs = append(msgs, "invalid Google credentials file: "+o.GoogleServiceAccountJSON)
+				} else {
+					p.SetGroupRestriction(o.GoogleGroups, o.GoogleAdminEmail, file)
+				}
 			}
 		}
 	}

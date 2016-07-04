@@ -16,21 +16,24 @@ type Provider interface {
 	CookieForSession(*SessionState, *cookie.Cipher) (string, error)
 }
 
-func New(provider string, p *ProviderData) Provider {
+func New(provider string, p *ProviderData) (Provider, error) {
 	switch provider {
 	case "myusa":
-		return NewMyUsaProvider(p)
+		return NewMyUsaProvider(p), nil
 	case "linkedin":
-		return NewLinkedInProvider(p)
+		return NewLinkedInProvider(p), nil
 	case "facebook":
-		return NewFacebookProvider(p)
+		return NewFacebookProvider(p), nil
+	case "generic":
+		generic, err := NewGenericProvider(p)
+		return generic, err
 	case "github":
-		return NewGitHubProvider(p)
+		return NewGitHubProvider(p), nil
 	case "azure":
-		return NewAzureProvider(p)
+		return NewAzureProvider(p), nil
 	case "gitlab":
-		return NewGitLabProvider(p)
+		return NewGitLabProvider(p), nil
 	default:
-		return NewGoogleProvider(p)
+		return NewGoogleProvider(p), nil
 	}
 }
